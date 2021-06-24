@@ -4,12 +4,24 @@ const Bodies = Matter.Bodies;
 const Constraint = Matter.Constraint;
 
 var engine, world;
-
-
+var gameState = "onSling";
+function preload(){
+    polygon_img=loadImage("polygon.png");
+}
 function setup(){
     var canvas = createCanvas(1000,1000);
     engine = Engine.create();
     world = engine.world;
+
+    var options={
+        'restitution':0.8,
+        'friction':0.2,
+        'density':0.4
+    }
+    polygon=Bodies.circle(50,200,20,options);
+    World.add(world,polygon);
+
+    sling=new SlingShot(this.polygon,{x:100,y:200});
 
     hex1=new Hex(400,550);
     hex2=new Hex(450,550);
@@ -45,12 +57,17 @@ function setup(){
     fill(12,72,72);
     ground1=new Ground(600,600,500,30);
     ground2=new Ground(100,500,500,30);
+    ground3=new Ground(0,1000,1000,30);
     
 }
 
 function draw(){
     background("black");
     Engine.update(engine);
+
+    
+    imageMode(CENTER);
+    image(polygon_img,polygon.position.x,polygon.position.y,40,40);
     
     hex1.display();
     hex2.display();
@@ -83,6 +100,7 @@ function draw(){
     hex28.display();
     ground1.display();
     ground2.display();
+    sling.display();
 
     textSize(25);
     fill("white");
@@ -94,4 +112,21 @@ function draw(){
 
 
 
+function mouseDragged(){
+    if (gameState!=="launched"){
+        Matter.Body.setPosition(this.polygon, {x: mouseX , y: mouseY});
+    }
+}
+
+
+function mouseReleased(){
+    sling.fly();
+    gameState = "launched";
+}
+
+function keyPressed(){
+    if(keyCode === 32){
+       sling.attach(this.polygon);
+    }
+}
 
